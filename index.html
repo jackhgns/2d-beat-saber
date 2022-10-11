@@ -1,0 +1,482 @@
+<html>
+
+<!--
+      ╔╦═══╦═══╦╗╔═╗╔╗ ╔╦══╦═══╦═══╦══╦═╗ ╔╦═══╗
+      ║║╔═╗║╔═╗║║║╔╝║║ ║╠╣╠╣╔═╗║╔═╗╠╣╠╣║╚╗║║╔═╗║
+      ║║║ ║║║ ╚╣╚╝╝ ║╚═╝║║║║║ ╚╣║ ╚╝║║║╔╗╚╝║╚══╗
+    ╔╗║║╚═╝║║  ╣╔╗║ ║╔═╗║║║║║╔═╣║╔═╗║║║║╚╗║╠══╗║
+    ║╚╝║╔═╗║╚═╝║║║╚╗║║ ║╠╣╠╣╚╩═║╚╩ ╠╣╠╣║ ║║║╚═╝║
+    ╚══╩╝ ╚╩═══╩╝╚═╝╚╝ ╚╩══╩═══╩═══╩══╩╝ ╚═╩═══╝
+
+-->
+    
+    <head>
+      <title>Game</title> 
+        <style>
+            body {
+                margin: 0px;
+                background-color: black;
+                background-image: url("bg.png");
+                background-size: cover;
+                background-repeat: no-repeat;
+                text-align: center;
+                user-select: none;
+                color: white;
+                font-family: monospace;
+                font-size: 25px;
+                line-height: 0.5;
+            }
+
+            canvas {
+                margin: 0px auto 20px auto;
+                width: 1000px;
+                height: 1000px;
+                background-color: black;
+            }
+
+            #logo {
+                margin: 30px 0px 5px 0px;
+                height: 250px;
+
+            }
+
+            .enemy-dblue,
+            .enemy-dred,
+            .enemy-ublue,
+            .enemy-ured,
+            .enemy-lblue,
+            .enemy-lred,
+            .enemy-rblue,
+            .enemy-rred,
+            .enemy-rgreen,
+            .enemy-ugreen,
+            .enemy-lgreen,
+            .enemy-dgreen {
+                background-color: transparent;
+                background-position: center;
+                background-size: cover;
+                width: 60px;
+                height: 60px;
+                position: absolute;
+            }
+
+            .enemy-dblue {
+                background-image: url(blocks/dblue.png);
+            }
+
+            .enemy-dred {
+                background-image: url(blocks/dred.png);
+            }
+
+            .enemy-dgreen {
+                background-image: url(blocks/dgreen.png);
+            }
+
+            .enemy-ublue {
+                background-image: url(blocks/ublue.png);
+            }
+
+            .enemy-ured {
+                background-image: url(blocks/ured.png);
+            }
+
+            .enemy-ugreen{
+                background-image: url(blocks/ugreen.png);
+            }
+
+            .enemy-lblue {
+                background-image: url(blocks/lblue.png);
+            }
+
+            .enemy-lred {
+                background-image: url(blocks/lred.png);
+            }
+
+            .enemy-lgreen {
+                background-image: url(blocks/lgreen.png);
+            }
+
+            .enemy-rblue {
+                background-image: url(blocks/rblue.png);
+            }
+
+            .enemy-rred {
+                background-image: url(blocks/rred.png);
+            }
+
+            .enemy-rgreen {
+                background-image: url(blocks/rgreen.png);
+            }
+
+            progress {
+                position: absolute;
+                width: 1000px;
+                background-color: black;
+            }
+
+            #health {
+                width: 1000px;
+                height: 20px;
+                background-color: black;
+                margin: auto;
+            }
+
+            #health-value {
+                background-color: blue;
+                background-image: linear-gradient(135deg, #0009ff 0%, indigo 100%);        
+                width: 50%;
+                height: 20px;
+                transition: 0.5s;
+                text-align: right;
+                font-size: 20px;
+                padding-top: 5px;
+            }
+
+            #line1 {
+                margin-bottom: 50px;
+            }
+
+            #gameOver {
+                background-color: rgba(0,0,0,0.8);
+                height: 100%;
+                width: 100%;
+                visibility: hidden;
+                z-index: 1;
+                position: fixed;
+            }
+
+            #gameOverText {
+                margin: 200px auto;
+                width: 1000px;   
+            }
+
+            .btn {
+                padding: 10px 20px;
+                background-color: transparent;
+                border: white 2px solid;
+                color: inherit;
+                text-decoration: none;
+                border-radius: 100px;
+                text-decoration: none;
+                cursor: pointer;
+                transition: 0.3s;
+                text-align: center;
+                margin: 0px 20p;
+            }
+
+            .btn:hover {
+                color: grey;
+                border: grey solid 2px;
+            }
+
+        </style>
+    </head>
+    <body>
+
+        <!--Game Over Screen-->
+        <div id="gameOver">
+            <div id="gameOverText"></div>
+        </div>
+
+        <!--Logo-->
+        <p><img src="logo.png" alt="Game Name" id="logo" /></p>
+
+        <p id="line1"><b>Press Space Bar to Start</b></p>
+
+        <!--Game-->
+        <div id="health"><div id="health-value"></div></div>
+        <canvas id="canvas">
+        </canvas>
+
+        <p><a class="btn" onclick="help()">Help ?</a></p>
+
+        <script>
+
+            // Key detection values for the keys that will be used. (Taken from: https://www.oreilly.com/library/view/javascript-dhtml/9780596514082/apb.html)
+            var leftKey = 37;
+            var upKey = 38;
+            var rightKey = 39;
+            var downKey = 40;
+            var wKey = 87;
+            var aKey = 65;
+            var sKey = 83;
+            var dKey = 68;
+            var spaceBar = 32;
+
+            var arrowLoopRun = 0;
+            var lastLoopRun = 0;
+
+            var controller = new Object();
+            var enemies = new Array();
+
+            var name = prompt("First Name:");
+            var score = 500;
+            var speed = 4;
+            var level = 1;
+
+            // Defines the Y positions of the start and end of the game.
+            var startPos = 405;
+            var endPos = 1340;
+
+            // Creating a Gradient Line (Taken from: https://www.w3schools.com/tags/canvas_strokestyle.asp)
+            var screen = document.getElementById('canvas');
+            var hr = screen.getContext('2d');
+            var gradient = hr.createLinearGradient(0, 0, 278, 0);
+            hr.lineWidth = 1;
+            gradient.addColorStop("0", "red");
+            gradient.addColorStop("1", "blue");
+            hr.strokeStyle = gradient;
+            hr.strokeRect(0, 125.5, 1000, 0);
+
+            function createArrow(element, x, y) {
+                var result = new Object();
+                result.element = element;
+                result.x = x;
+                result.y = y;
+                return result;
+            }
+
+            
+            function boundry(sprite) {
+                if (sprite.y < 20) {
+                    sprite.y = 20;
+                }
+
+                else if (sprite.y > endPos) { // Stops arrows from going past game's maximum height.
+                    sprite.y = endPos;
+                }
+            }
+
+            function setPosition(sprite) {
+                var e = document.getElementById(sprite.element);
+                e.style.left = sprite.x;
+                e.style.top = sprite.y;
+            }
+
+            function eventHandler() {
+                for (var i = 0; i < enemies.length; i++) {
+
+                    if (enemies[i].y + 60 > 1270 && enemies[i].y < endPos) {
+
+                        var element = document.getElementById(enemies[i].element);
+
+                        document.onkeydown = function(checkKeyPress) {
+
+                            if (checkKeyPress.keyCode == wKey && element.className == 'enemy-ublue') { // If the w key is pressed and the arrow is blue and up, it changes the colour to green and implements scorePlus()
+                                element.className = 'enemy-ugreen';
+                                scorePlus()
+                            }
+
+                            else if (checkKeyPress.keyCode == aKey && element.className == 'enemy-lblue') {
+                                element.className = 'enemy-lgreen';
+                                scorePlus()
+                            }
+
+                            else if (checkKeyPress.keyCode == sKey && element.className == 'enemy-dblue') {
+                                element.className = 'enemy-dgreen';
+                                scorePlus()
+                            }
+
+                            else if (checkKeyPress.keyCode == dKey && element.className == 'enemy-rblue') {
+                                element.className = 'enemy-rgreen';
+                                scorePlus()
+                            }
+
+                            else if (checkKeyPress.keyCode == upKey && element.className == 'enemy-ured') {
+                                element.className = 'enemy-ugreen';
+                                scorePlus()
+                            }
+
+                            else if (checkKeyPress.keyCode == leftKey && element.className == 'enemy-lred') {
+                                element.className = 'enemy-lgreen';
+                                scorePlus()
+                            }
+
+                            else if (checkKeyPress.keyCode == downKey && element.className == 'enemy-dred') {
+                                element.className = 'enemy-dgreen';
+                                scorePlus()
+                            }
+
+                            else if (checkKeyPress.keyCode == rightKey && element.className == 'enemy-rred') {
+                                element.className = 'enemy-rgreen';
+                                scorePlus()
+                            }
+
+                        }
+                    }
+                }
+            }
+
+            function removeArrow() { 
+                for (var i = 0; i < enemies.length; i++) {
+                    if (enemies[i].y >= endPos) { // Deletes an arrow when it reaches the Y end position.
+                        var element = document.getElementById(enemies[i].element);
+
+                        if (element.className != 'enemy-rgreen' && element.className != 'enemy-dgreen'  && element.className != 'enemy-lgreen' && element.className != 'enemy-ugreen') { // Minuses score if the arrow is removed and is not green.
+                            scoreMinus()
+                        }
+
+                        element.parentNode.removeChild(element); // Deletes arrow
+                        enemies.splice(i, 1);
+                        i--;
+                    }
+                }
+            }
+
+            function showSprites() {
+                for (var i = 0; i < enemies.length; i++) {
+                    setPosition(enemies[i]);
+                }
+            }
+
+            function moveArrow() { // Moves arrow on the Y axis
+                for (var i = 0; i < enemies.length; i++) {
+                    enemies[i].y += speed;
+                    boundry(enemies[i]);
+                }
+            }
+
+            function addArrow() {
+                if (new Date().getTime() - arrowLoopRun > 500) {
+
+
+                    if (getRandom(20) == 0) {  // One in every 20 times, it will add an arrow.
+                        var elementName = 'arrow' + getRandom(10000000);
+                        var arrowChoice = getRandomNum(1, 8);
+                        var arrow = createArrow(elementName, getColumn(arrowChoice), startPos);
+
+                        var element = document.createElement('div');
+                        element.id = arrow.element;
+
+                        if (arrowChoice == 1) { // Asigns the class 'enemy-dblue' to the div if the random number generator outputs 1.
+                            element.className = 'enemy-dblue';
+                        }
+
+                        else if (arrowChoice == 2) {
+                            element.className = 'enemy-ublue';
+                        }
+
+                        else if (arrowChoice == 3) {
+                            element.className = 'enemy-lblue';
+                        }
+
+                        else if (arrowChoice == 4) {
+                            element.className = 'enemy-rblue';
+                        }
+
+                        else if (arrowChoice == 5) {
+                            element.className = 'enemy-dred';
+                        }
+
+                        else if (arrowChoice == 6) {
+                            element.className = 'enemy-ured';
+                        }
+
+                        else if (arrowChoice == 7) {
+                            element.className = 'enemy-lred';
+                        }
+
+                        else if (arrowChoice == 8) {
+                            element.className = 'enemy-rred';
+                        }
+
+                        document.children[0].appendChild(element);
+
+                        enemies[enemies.length] = arrow;
+                        arrowLoopRun = new Date().getTime();
+                    }
+                }
+
+            }
+
+            function getRandomNum(min, max) { // Random number generator
+                min = Math.ceil(min);
+                max = Math.floor(max);
+                return Math.floor(Math.random() * (max - min + 1)) + min;
+            }
+
+            function getColumn(columnChoice) { // Says if the arrows are blue (1 - 4) its x axis will be 640. (Left column) If the arrows are red (6-8) its x axis will be 740. (Right column)
+                var pageWidthA = (window.innerWidth / 2) - 80;
+                var pageWidthB = (window.innerWidth / 2) + 80;
+
+                if (columnChoice < 5) return pageWidthA;
+                else return pageWidthB;
+            }
+
+            function getRandom(maxSize) {
+                return parseInt(Math.random() * maxSize);
+            }
+
+            function scorePlus() {
+                if (score <= 1000  && score >= 0) {
+                    score = Math.min(score + 50, 1000);
+                    document.getElementById("health-value").style.width = score;  // Taken from: https://www.w3schools.com/jsref/prop_style_width.asp
+                }
+            }
+
+            function scoreMinus() {
+                if (score <= 1000 && score >= 0) {
+                    score = Math.max(score - 100, 0);
+                    document.getElementById("health-value").style.width = score;
+                }
+            }
+
+            function levels() { // Increases the level every time the score reaches 1000 (100).
+                if (score == 1000) {
+                    score = 500;
+                    speed = speed + 1;
+                    level = level + 1;
+                    document.getElementById("health-value").style.width = score;
+                    document.getElementById("line1").innerHTML = "<b>Name: </b>" + name + " -  <b>Level: </b>" + level;
+                }
+            }
+
+            function help() { // Gives an alert with the game instructions.
+                alert("HOW TO PLAY: Hey " + name + "! To play the game, you must click a key that corresponds to the arrow block on your screen. Once an arrow block goes past the horizontal line, you must press either the W, A, S, D, up arrow, down arrow, left arrow, or right arrow. Blue arrows use the letter keys and the red arrows use the arrow keys. E.g. if you see a blue up arrow: use the W key.")
+            }
+
+            function run() { // Runs all the functions
+                if (new Date().getTime() - lastLoopRun > 30) {
+
+                    moveArrow();
+
+                    removeArrow();
+
+                    addArrow();
+
+                    showSprites();
+
+                    levels();
+
+                    eventHandler();
+
+                    lastLoopRun = new Date().getTime();
+
+                    document.getElementById("health-value").innerHTML = score / 10; // Displays score on the health bar.
+
+                    if (score <= 0) {
+                        document.getElementById("gameOver").style.visibility = 'visible';
+                        document.getElementById("gameOverText").innerHTML = '<p style="font-size: 300px; color: red;">:(</p> <br/> <br/> <h1>You Fail ' + name + '!</h1> <br/> <h4>Your level was ' + level + '.</h4>';
+                    }
+
+                }
+
+                setTimeout('run();', 2);
+            }
+
+            
+            function play() { // Implements the play() function when the space bar is pressed.
+                document.onkeydown = function(checkKeyPress) {
+                    if (checkKeyPress.keyCode == spaceBar) {
+                        run()
+                        document.getElementById("line1").innerHTML = "<b>Name: </b>" + name + " -  <b>Level: </b>" + level;
+                    }
+                }
+            }
+            
+            play()
+
+        </script>
+    </body>
+
+</html>
